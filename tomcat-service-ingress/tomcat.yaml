@@ -1,0 +1,92 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tomcat-ingress
+spec:
+  rules:
+  - host: k8s-tomcat.coda.global
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: tomcat-service-1
+          servicePort: 8080
+      - path: /k8s-sample-app1
+        backend:
+          serviceName: tomcat-service-1
+          servicePort: 8080
+      - path: /k8s-sample-app2
+        backend:
+          serviceName: tomcat-service-2
+          servicePort: 8080
+--- 
+apiVersion: v1
+kind: Service
+metadata: 
+  name: tomcat-service-1
+spec: 
+  ports: 
+    - 
+      name: http
+      port: 8080
+      protocol: TCP
+  selector: 
+    app: tomcat1
+  type: NodePort
+--- 
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata: 
+  labels: 
+    app: tomcat1 
+  name: tomcat1 
+spec: 
+  replicas: 1
+  template: 
+    metadata: 
+      labels: 
+        app: tomcat1
+    spec: 
+      containers: 
+        - 
+          image: tomcat:latest
+          name: tomcat1
+          ports: 
+            - 
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: tomcat-service-2
+spec: 
+  ports: 
+    - 
+      name: http
+      port: 8080
+      protocol: TCP
+  selector: 
+    app: tomcat2
+  type: NodePort
+--- 
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata: 
+  labels: 
+    app: tomcat2
+  name: tomcat2
+spec: 
+  replicas: 1
+  template: 
+    metadata: 
+      labels: 
+        app: tomcat2
+    spec: 
+      containers: 
+        - 
+          image: tomcat:latest
+          name: tomcat2
+          ports: 
+            - 
+              containerPort: 8080
